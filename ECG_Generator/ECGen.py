@@ -9,7 +9,7 @@ def p_wav(x, a_pwav, d_pwav, t_pwav, li):
 
         l = li
         a = a_pwav
-        x = x + t_pwav
+        x = x/100 + t_pwav
         b = (2 * l)/d_pwav
         n = 100
         p1 = 1 / l
@@ -30,7 +30,7 @@ def p_wav(x, a_pwav, d_pwav, t_pwav, li):
 
 def q_wav(x, a_qwav, d_qwav, t_qwav, li):
         l = li
-        x = x + t_qwav
+        x = x/100 + t_qwav
         a = a_qwav
         b = (2 * l) / d_qwav
         n = 100
@@ -58,7 +58,7 @@ def qrs_wav(x, a_qrswav, d_qrswav, li):
         qrs2 = 0
 
         for i in range (1,101):
-            harm = (((2 * b * a) / (i * i * pi * pi)) * (1 - cos((i * pi) / b))) * cos((i * pi * x) / l)
+            harm = (((2 * b * a) / (i * i * pi * pi)) * (1 - cos((i * pi) / b))) * cos((i * pi * x/100) / l)
             qrs2 += harm
 
 
@@ -71,7 +71,7 @@ def qrs_wav(x, a_qrswav, d_qrswav, li):
 
 def s_wav(x, a_swav, d_swav, t_swav, li):
         l = li
-        x = x - t_swav
+        x = x/100 - t_swav
         a = a_swav
         b = (2 * l) / d_swav
         n = 100
@@ -93,7 +93,7 @@ def t_wav(x, a_twav, d_twav, t_twav, li):
 
         l = li
         a = a_twav
-        x = x - t_twav - 0.045
+        x = x/100 - t_twav - 0.045
         b = (2 * l) / d_twav
         n = 100
         t1 = 1 / l
@@ -118,7 +118,7 @@ def u_wav(x, a_uwav, d_uwav, t_uwav, li):
 
         l = li
         a = a_uwav
-        x = x - t_uwav
+        x = x/100 - t_uwav
         b = (2 * l) / d_uwav
         n = 100
         u1 = 1 / l

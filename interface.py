@@ -2,12 +2,14 @@ import sys
 
 from PyQt5.QtWidgets import (QApplication, QWidget, QToolTip, QPushButton, QMessageBox, QLabel, QRadioButton, QSpinBox, QDial)
 from PyQt5.QtGui import QIcon, QFont
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import QCoreApplication
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 from pyqtgraph.ptime import time
+
+import numpy as np
 
 from ECG_Generator import ECGen
 
@@ -20,9 +22,7 @@ class AlgoGUI(QWidget):
 
         self.initUI()
 
-    def get_ecg(value):
-        data = ECGen.ecg_gen_norm(value)
-        return data
+
 
     def initUI(self):
 
@@ -47,29 +47,32 @@ class AlgoGUI(QWidget):
         cs_plot = pg.PlotWidget()
         curve_cs = cs_plot.plot(pen='r')
 
-        def update(p):
-
-            curve.setData(data[ptr % 10])
-            ptr += 1
-            now = time()
-            dt = now - lastTime
-            lastTime = now
-            if fps is None:
-                fps = 1.0 / dt
-            else:
-                s = np.clip(dt * 3., 0, 1)
-                fps = fps * (1 - s) + (1.0 / dt) * s
-            p.setTitle('%0.2f fps' % fps)
-            app.processEvents()  ## force complete redraw for every plot
+        def get_ecg(value):
+            data = ECGen.ecg_gen_norm(value)
+            return data
 
 
         def start_callback():
             if radio1:
-                data = ECGen.ecg_gen_norm(spinner.value())
-            timer = QtCore.QTimer()
-            timer.timeout.connect(update(ecg_plot))
-            timer.start(0)
+                # 1) Simplest approach -- update data in the array such that plot appears to scroll
+                #    In these examples, the array size is fixed.
 
+                data1 = get_ecg(spinner.value())
+
+                curve1 = ecg_plot.plot(data1, pen = 'g')
+                curve2 = cs_plot.plot(data1, pen = 'r')
+                ptr1 = 0
+
+                def update1():
+                    global data1, curve1, ptr1
+                    data1[:-1] = data1[1:]  # shift data in the array one sample left
+                    # (see also: np.roll)
+                    data1[-1] = (get_ecg(spinner.value())[0])
+                    #curve1.setData(data1)
+
+                    ptr1 += 1
+                    curve2.setData(data1)
+                    curve2.setPos(ptr1, 0)
 
         # Кнопка запуска
         btn = QPushButton('Старт', self)
@@ -97,7 +100,7 @@ class AlgoGUI(QWidget):
 
 
         def value_change():
-            dial.value = spinner.value
+            dial.setValue(spinner.value())
         # Окно ввода частоты
         spinner = QSpinBox(self)
         spinner.setValue(72)
@@ -107,10 +110,12 @@ class AlgoGUI(QWidget):
 
 
         def value_changer():
-            spinner.value = dial.value
+            spinner.setValue(dial.value())
 
         # Ползунок вращатель
         dial = QDial(self)
+        dial.setMinimum(20)
+        dial.setMaximum(150)
         #dial.move(440, 150)
         dial.valueChanged.connect(value_changer)
 
@@ -146,6 +151,10 @@ class AlgoGUI(QWidget):
         self.setGeometry(300, 100, 750, 350)
         self.setWindowTitle('Алгоритм автоподстройки частоты')
         self.setWindowIcon(QIcon('/Desktop/028-512.png'))
+        appearance = self.palette()
+        appearance.setColor(QtGui.QPalette.Normal, QtGui.QPalette.Window,
+                            QtGui.QColor("light blue"))
+        self.setPalette(appearance)
 
         self.main_widget = QWidget(self)
 
@@ -162,6 +171,10 @@ class AlgoGUI(QWidget):
             event.accept()
         else:
             event.ignore()
+
+
+
+
 
 
 if __name__ == '__main__':
