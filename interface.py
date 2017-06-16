@@ -7,16 +7,11 @@ from PyQt5.QtCore import QCoreApplication
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
-
+from pyqtgraph.ptime import time
 
 from ECG_Generator import ECGen
 
-from pyqtgraph.ptime import time
-
-
 import random
-
-
 
 class AlgoGUI(QWidget):
 
@@ -29,13 +24,7 @@ class AlgoGUI(QWidget):
         data = ECGen.ecg_gen_norm(value)
         return data
 
-
-
-
-
     def initUI(self):
-
-
 
         # Подсказка
         QToolTip.setFont (QFont('Times', 12))
@@ -50,6 +39,7 @@ class AlgoGUI(QWidget):
         lbl2 = QLabel('Сигнал кардиостимулятора', self)
         #lbl2.move(170, 220)
 
+        #виджеты графиков pygraph
         ecg_plot = pg.PlotWidget()
         curve = ecg_plot.plot(pen='g')
         fps = None
@@ -79,9 +69,6 @@ class AlgoGUI(QWidget):
             timer = QtCore.QTimer()
             timer.timeout.connect(update(ecg_plot))
             timer.start(0)
-
-
-
 
 
         # Кнопка запуска
@@ -127,11 +114,7 @@ class AlgoGUI(QWidget):
         #dial.move(440, 150)
         dial.valueChanged.connect(value_changer)
 
-
-
-
-
-        #layouts############################
+        #layouts
 
         v_box1 = QtWidgets.QVBoxLayout()
         v_box1.addStretch()
@@ -158,33 +141,17 @@ class AlgoGUI(QWidget):
         h_box.addStretch()
 
         self.setLayout(h_box)
-#########################################
 
-
-
-        ####  Cоздание окна   ##############
+        #Cоздание окна
         self.setGeometry(300, 100, 750, 350)
         self.setWindowTitle('Алгоритм автоподстройки частоты')
         self.setWindowIcon(QIcon('/Desktop/028-512.png'))
 
         self.main_widget = QWidget(self)
 
-
         self.show()
 
-##############################################
-
-
-
-
-
-
-
-
-
-
-
-    # функция описывающая закрытие
+    # функция переопределяющая закрытие
     def closeEvent(self, event):
 
         reply = QMessageBox.question(self, 'Message',
@@ -195,10 +162,6 @@ class AlgoGUI(QWidget):
             event.accept()
         else:
             event.ignore()
-
-
-
-
 
 
 if __name__ == '__main__':
