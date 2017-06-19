@@ -9,6 +9,8 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 from pyqtgraph.ptime import time
 
+import matplotlib.pyplot as pl
+
 import numpy as np
 
 from ECG_Generator import ECGen
@@ -16,6 +18,8 @@ from ECG_Generator import ECGen
 import random
 
 class AlgoGUI(QWidget):
+
+
 
     def __init__(self):
         super().__init__()
@@ -26,11 +30,13 @@ class AlgoGUI(QWidget):
 
     def initUI(self):
 
+
         # Подсказка
         QToolTip.setFont (QFont('Times', 12))
         self.setToolTip('Это программа реализующая тестирование алгоритма адаптирования частоты кардиостимуляции')
         self.setToolTipDuration(1500)
-
+        self.ptr = 1
+        self.bufferdata = []
 
         # Надписи
         lbl1 = QLabel('Сигнал ЭКГ', self)
@@ -42,37 +48,79 @@ class AlgoGUI(QWidget):
         #виджеты графиков pygraph
         ecg_plot = pg.PlotWidget()
         curve = ecg_plot.plot(pen='g')
+
         fps = None
+
+        def value_change():
+            dial.setValue(spinner.value())
+
+        def value_changer():
+            spinner.setValue(dial.value())
+
+
+
+        # Окно ввода частоты
+        spinner = QSpinBox(self)
+        spinner.setValue(72)
+        spinner.setRange(20, 150)
+        spinner.setGeometry(460, 120, 60, 20)
+        spinner.valueChanged.connect(value_change)
+        # Ползунок вращатель
+        dial = QDial(self)
+        dial.setMinimum(20)
+        dial.setMaximum(150)
+        #dial.move(440, 150)
+        dial.valueChanged.connect(value_changer)
+
 
         cs_plot = pg.PlotWidget()
         curve_cs = cs_plot.plot(pen='r')
 
-        def get_ecg(value):
-            data = ECGen.ecg_gen_norm(value)
+        def get_ecg(value, x, var):
+            data = ECGen.ecg_gen_norm(value, x, var)
             return data
+
+        initial_data = get_ecg(spinner.value(), 1000, 'list')
+        for num in initial_data:
+            self.bufferdata.append(num)
+
+
+
 
 
         def start_callback():
-            if radio1:
-                # 1) Simplest approach -- update data in the array such that plot appears to scroll
-                #    In these examples, the array size is fixed.
+            if radio1.isChecked():
 
-                data1 = get_ecg(spinner.value())
 
-                curve1 = ecg_plot.plot(data1, pen = 'g')
-                curve2 = cs_plot.plot(data1, pen = 'r')
-                ptr1 = 0
 
-                def update1():
-                    global data1, curve1, ptr1
-                    data1[:-1] = data1[1:]  # shift data in the array one sample left
-                    # (see also: np.roll)
-                    data1[-1] = (get_ecg(spinner.value())[0])
-                    #curve1.setData(data1)
+                #curve1 = ecg_plot.plot(self.bufferdata, pen = 'g')
 
-                    ptr1 += 1
-                    curve2.setData(data1)
-                    curve2.setPos(ptr1, 0)
+                curve1 = ecg_plot.plot(self.bufferdata, pen='g')
+                self.ptr += 1
+
+                #curve2 = cs_plot.plot(data1, pen = 'r')
+
+                def updateplot( ):
+
+                    self.bufferdata[:-1] = self.bufferdata[1:]
+                    self.ptr += 1
+                    self.bufferdata[-1] = get_ecg(spinner.value(), self.ptr, 'int')
+
+                    print(self.bufferdata)
+
+                    self.ptr += 1
+                    curve1.clear()
+                    curve1.setData(self.bufferdata)
+                    curve1.setPos(self.ptr, 1)
+
+                while True:
+                    timer = QtCore.QTimer()
+                    timer.timeout.connect(updateplot)
+                    timer.start(50)
+
+
+
+                    app.processEvents()
 
         # Кнопка запуска
         btn = QPushButton('Старт', self)
@@ -99,25 +147,9 @@ class AlgoGUI(QWidget):
         #radio3.move(440, 70)
 
 
-        def value_change():
-            dial.setValue(spinner.value())
-        # Окно ввода частоты
-        spinner = QSpinBox(self)
-        spinner.setValue(72)
-        spinner.setRange(20, 150)
-        spinner.setGeometry(460, 120, 60, 20)
-        spinner.valueChanged.connect(value_change)
 
 
-        def value_changer():
-            spinner.setValue(dial.value())
 
-        # Ползунок вращатель
-        dial = QDial(self)
-        dial.setMinimum(20)
-        dial.setMaximum(150)
-        #dial.move(440, 150)
-        dial.valueChanged.connect(value_changer)
 
         #layouts
 
@@ -147,6 +179,9 @@ class AlgoGUI(QWidget):
 
         self.setLayout(h_box)
 
+
+
+
         #Cоздание окна
         self.setGeometry(300, 100, 750, 350)
         self.setWindowTitle('Алгоритм автоподстройки частоты')
@@ -155,6 +190,7 @@ class AlgoGUI(QWidget):
         appearance.setColor(QtGui.QPalette.Normal, QtGui.QPalette.Window,
                             QtGui.QColor("light blue"))
         self.setPalette(appearance)
+        self.setAutoFillBackground(True)
 
         self.main_widget = QWidget(self)
 
@@ -163,9 +199,7 @@ class AlgoGUI(QWidget):
     # функция переопределяющая закрытие
     def closeEvent(self, event):
 
-        reply = QMessageBox.question(self, 'Message',
-                                     "Вы точно хотите закрыть?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(self, 'Message',"Вы точно хотите закрыть?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             event.accept()
