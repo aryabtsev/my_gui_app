@@ -106,7 +106,7 @@ class AlgoGUI(QWidget):
                     self.ptr += 1
                     self.bufferdata[-1] = get_ecg(spinner.value(), self.ptr, 'int')
 
-                    print(self.bufferdata)
+                    #print(self.bufferdata)
 
                     self.ptr += 1
                     curve1.clear()
