@@ -7,9 +7,6 @@ from PyQt5.QtCore import QCoreApplication
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
-from pyqtgraph.ptime import time
-
-import matplotlib.pyplot as pl
 
 import numpy as np
 
@@ -37,6 +34,8 @@ class AlgoGUI(QWidget):
         self.setToolTipDuration(1500)
         self.ptr = 1
         self.bufferdata = []
+        self.r_locs = []
+        massiv = np.array([0])
 
         # Надписи
         lbl1 = QLabel('Сигнал ЭКГ', self)
@@ -80,7 +79,7 @@ class AlgoGUI(QWidget):
             data = ECGen.ecg_gen_norm(value, x, var)
             return data
 
-        initial_data = get_ecg(spinner.value(), 1000, 'list')
+        initial_data = get_ecg(spinner.value(), 250, 'list')
         for num in initial_data:
             self.bufferdata.append(num)
 
@@ -109,14 +108,20 @@ class AlgoGUI(QWidget):
                     #print(self.bufferdata)
 
                     self.ptr += 1
-                    curve1.clear()
+                    #curve1.clear()
                     curve1.setData(self.bufferdata)
                     curve1.setPos(self.ptr, 1)
 
+
                 while True:
+
+
+
+
+                    curve1.clear()
                     timer = QtCore.QTimer()
                     timer.timeout.connect(updateplot)
-                    timer.start(50)
+                    timer.start(38)
 
 
 
