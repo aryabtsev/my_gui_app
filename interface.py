@@ -115,9 +115,6 @@ class AlgoGUI(QWidget):
 
                 while True:
 
-
-
-
                     curve1.clear()
                     timer = QtCore.QTimer()
                     timer.timeout.connect(updateplot)
@@ -152,10 +149,6 @@ class AlgoGUI(QWidget):
         #radio3.move(440, 70)
 
 
-
-
-
-
         #layouts
 
         v_box1 = QtWidgets.QVBoxLayout()
@@ -183,8 +176,6 @@ class AlgoGUI(QWidget):
         h_box.addStretch()
 
         self.setLayout(h_box)
-
-
 
 
         #Cоздание окна

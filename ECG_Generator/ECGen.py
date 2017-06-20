@@ -1,10 +1,5 @@
 from math import sin, pi, cos
 
-
-
-
-
-
 def p_wav(x, a_pwav, d_pwav, t_pwav, li):
 
         l = li
@@ -14,7 +9,6 @@ def p_wav(x, a_pwav, d_pwav, t_pwav, li):
         n = 100
         p1 = 1 / l
         p2 = 0
-
 
         for i in range(1,101):
             harm1 = ((((sin((pi / (2 * b)) * (b - (2 * i)))) / (b - (2 * i)) + (sin((pi / (2 * b)) * (b + (
@@ -173,22 +167,22 @@ def ecg_gen_norm (rate, x, var):
 
             for i in range (0,x):
 
-                pwav = p_wav(x, a_pwav, d_pwav, t_pwav, li)
+                pwav = p_wav(i, a_pwav, d_pwav, t_pwav, li)
 
 
-                qwav = q_wav(x, a_qwav, d_qwav, t_qwav, li)
+                qwav = q_wav(i, a_qwav, d_qwav, t_qwav, li)
 
-                qrswav = qrs_wav(x, a_qrswav, d_qrswav, li)
+                qrswav = qrs_wav(i, a_qrswav, d_qrswav, li)
 
-                swav = s_wav(x, a_swav, d_swav, t_swav, li)
+                swav = s_wav(i, a_swav, d_swav, t_swav, li)
 
-                twav = t_wav(x, a_twav, d_twav, t_twav, li)
-
-
-                uwav = u_wav(x, a_uwav, d_uwav, t_uwav, li)
+                twav = t_wav(i, a_twav, d_twav, t_twav, li)
 
 
-                ecg_signal.append(pwav+qrswav+twav+swav+qwav+uwav)
+                uwav = u_wav(i, a_uwav, d_uwav, t_uwav, li)
+
+
+                ecg_signal.append(pwav+qrswav+twav+swav+qwav+uwav+0.02192*(130-rate))
 
             return ecg_signal
 
@@ -208,7 +202,7 @@ def ecg_gen_norm (rate, x, var):
 
             uwav = u_wav(x, a_uwav, d_uwav, t_uwav, li)
 
-            ecg_signal = pwav + qrswav + twav + swav + qwav + uwav
+            ecg_signal = pwav + qrswav + twav + swav + qwav + uwav + 0.02192*(130-rate)
 
         return ecg_signal
 
